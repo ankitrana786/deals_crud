@@ -1137,6 +1137,11 @@ caption {
   gap:10px;
   justify-content: space-between;
 }
+.show-container{
+  display:flex;
+  gap:5px;
+  justify-content: space-between;
+}
 /*
  * Navigation
  */

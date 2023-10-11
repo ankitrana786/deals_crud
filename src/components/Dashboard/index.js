@@ -6,23 +6,23 @@ import Table from './Table';
 import Add from './Add';
 import Edit from './Edit';
 
-import { employeesData } from '../../data';
+import { dealsData } from '../../data';
 
 const Dashboard = ({ setIsAuthenticated }) => {
-  const [employees, setEmployees] = useState(employeesData);
+  const [deals, setDeals] = useState(dealsData);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem('employees_data'));
-    if (data !== null && Object.keys(data).length !== 0) setEmployees(data);
+    const data = JSON.parse(localStorage.getItem('deals_data'));
+    if (data !== null && Object.keys(data).length !== 0) setDeals(data);
   }, []);
 
   const handleEdit = id => {
-    const [employee] = employees.filter(employee => employee.id === id);
+    const [deal] = deals.filter(deal => deal.id === id);
 
-    setSelectedEmployee(employee);
+    setSelectedEmployee(deal);
     setIsEditing(true);
   };
 
@@ -36,19 +36,19 @@ const Dashboard = ({ setIsAuthenticated }) => {
       cancelButtonText: 'No, cancel!',
     }).then(result => {
       if (result.value) {
-        const [employee] = employees.filter(employee => employee.id === id);
+        const [deal] = deals.filter(deal => deal.id === id);
 
         Swal.fire({
           icon: 'success',
           title: 'Deleted!',
-          text: `${employee.firstName} ${employee.lastName}'s data has been deleted.`,
+          text: `${deal.firstName} ${deal.lastName}'s data has been deleted.`,
           showConfirmButton: false,
           timer: 1500,
         });
 
-        const employeesCopy = employees.filter(employee => employee.id !== id);
-        localStorage.setItem('employees_data', JSON.stringify(employeesCopy));
-        setEmployees(employeesCopy);
+        const dealsCopy = deals.filter(deal => deal.id !== id);
+        localStorage.setItem('deals_data', JSON.stringify(dealsCopy));
+        setDeals(dealsCopy);
       }
     });
   };
@@ -62,7 +62,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
             setIsAuthenticated={setIsAuthenticated}
           />
           <Table
-            employees={employees}
+            deals={deals}
             handleEdit={handleEdit}
             handleDelete={handleDelete}
           />
@@ -70,16 +70,16 @@ const Dashboard = ({ setIsAuthenticated }) => {
       )}
       {isAdding && (
         <Add
-          employees={employees}
-          setEmployees={setEmployees}
+          deals={deals}
+          setDeals={setDeals}
           setIsAdding={setIsAdding}
         />
       )}
       {isEditing && (
         <Edit
-          employees={employees}
+          deals={deals}
           selectedEmployee={selectedEmployee}
-          setEmployees={setEmployees}
+          setDeals={setDeals}
           setIsEditing={setIsEditing}
         />
       )}

@@ -1124,7 +1124,19 @@ caption {
     width: 100%;
   }
 }
+.radio-container{
+  display:flex;
+  gap:40px;
+}
 
+.radio-container label input{
+  margin-right:10px;
+}
+.deals-container{
+  display:flex;
+  gap:10px;
+  justify-content: space-between;
+}
 /*
  * Navigation
  */

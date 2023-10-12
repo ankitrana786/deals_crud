@@ -1,0 +1,118 @@
+import React from 'react'
+import PropTypes from 'prop-types'
+import useLocalStorage from '../../hooks/useLocalStorage';
+import getStorageData from '../../hooks/useLocalStorage';
+import axios from "axios";
+
+
+export const CartContext = React.createContext();
+
+export const CartProvider = (props) => {
+  const userData = getStorageData("token", null);
+  const cartData = getStorageData("ceramics-cart", null);
+  console.log(cartData[0]);
+  const [state, setState] = React.useState({
+    data:props,
+    cart: (cartData !== null && cartData[0] !== null) ? cartData[0] : [],
+  });
+  const [value, setValue] = useLocalStorage("ceramics-cart", null);
+  
+  React.useEffect(() => {
+     const requestOptions = {
+      customerId: (userData[0]?.CUSTOMER) ? userData[0]?.CUSTOMER : "",
+      cust_level: (userData[0]?.LEVEL) ? userData[0]?.LEVEL : "",
+      countryCode: (userData[0]?.COUNTRY) ? userData[0]?.COUNTRY : "",
+      cname: (userData[0]?.primaryName) ? userData[0]?.primaryName : "",
+      session: (userData[0]?.SESSION) ? userData[0]?.SESSION : "",
+      USEREMAIL: (userData[0]?.primaryEmail) ? userData[0]?.primaryEmail : ""
+    }  
+   // console.log(requestOptions);
+    const fetchCartData = async () =>{
+
+        let URL = 'https://dev.ceramicarts.com/API/GetCartData.php';
+        // GETCARTDETAILS
+        await axios.post(URL, requestOptions)
+          .then(res => {
+            console.log(res);
+            const obj = res.data;
+            if(obj.length > 1){
+              setState(obj)
+            }else{
+              setState([])
+            }
+
+        })
+    }
+    fetchCartData()
+    // setValue(state.cart);
+  }, [state, setState]);
+
+  const addToCart = (item) => {
+    // console.log(item)
+    setState({
+      ...state,
+      cart: state.cart.find((cartItem) => cartItem.Item_Code === item.Item_Code)
+        ? state.cart.map((cartItem) =>
+            cartItem.Item_Code === item.Item_Code
+              ? { ...cartItem, count: cartItem.count + item.count}
+              : cartItem
+          )
+        : [...state.cart, { ...item, count: item.count }],
+    });
+  };
+
+  const increase = (item) => {
+    // console.log(item);
+    setState({
+      ...state,
+      cart: state.cart.map((cartItem) =>
+        cartItem.Item_Code === item.Item_Code
+          ? { ...cartItem, count: cartItem.count + 1 }
+          : cartItem
+      ),
+    });
+  };
+
+  const decrease = (item) => {
+    setState({
+      ...state,
+      cart: state.cart.map((cartItem) =>
+        cartItem.Item_Code === item.Item_Code
+          ? { ...cartItem, count: cartItem.count > 1 ? cartItem.count - 1 : 1 }
+          : cartItem
+      ),
+    });
+  };
+
+  const removeItem = (id) => {
+    setState({
+      ...state,
+      cart: state.cart.filter((cartItem) => cartItem.Item_Code !== id),
+    });
+  };
+
+  const cartItemCount = state.cart.reduce(
+    (acc, data) => (acc += data.count),0
+  );
+
+  const getCartData = state.cart;
+
+
+  return (
+    <CartContext.Provider
+      value={{
+        state,
+        addToCart,
+        increase,
+        decrease,
+        removeItem,
+        cartItemCount,
+        getCartData
+      }}
+    >
+      {props.children}
+    </CartContext.Provider>
+  );
+}
+
+
